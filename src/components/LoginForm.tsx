@@ -6,13 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Shield, Vote, CheckCircle, BarChart3, Users, Crown } from 'lucide-react';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { Shield, Vote, CheckCircle, BarChart3, Users, Crown, Send } from 'lucide-react';
 
 interface LoginFormProps {
   onLogin: (role: string, state?: string) => void;
 }
 
-// Indian state codes for ID verification
+// Indian state codes for Voter ID verification
 const stateCodesMap: { [key: string]: string } = {
   '01': 'Jammu and Kashmir', '02': 'Himachal Pradesh', '03': 'Punjab', '04': 'Chandigarh',
   '05': 'Uttarakhand', '06': 'Haryana', '07': 'Delhi', '08': 'Rajasthan',
@@ -29,34 +30,61 @@ const stateCodesMap: { [key: string]: string } = {
 const indianStates = Object.values(stateCodesMap).filter((v, i, a) => a.indexOf(v) === i).sort();
 
 const LoginForm = ({ onLogin }: LoginFormProps) => {
-  const [voterData, setVoterData] = useState({ epicId: '', mobile: '' });
+  const [voterData, setVoterData] = useState({ voterId: '', mobile: '' });
   const [adminData, setAdminData] = useState({ adminId: '', password: '', state: '' });
   const [masterAdminData, setMasterAdminData] = useState({ username: '', password: '' });
   const [voterState, setVoterState] = useState<string>('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
-  // Function to extract state from EPIC ID (first 2 digits)
-  const getStateFromEpicId = (epicId: string): string => {
-    if (epicId.length >= 2) {
-      const stateCode = epicId.substring(0, 2);
+  // Function to extract state from Voter ID (first 2 digits)
+  const getStateFromVoterId = (voterId: string): string => {
+    if (voterId.length >= 2) {
+      const stateCode = voterId.substring(0, 2);
       return stateCodesMap[stateCode] || '';
     }
     return '';
   };
 
-  const handleVoterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (voterData.epicId.length < 10) {
-      alert('Please enter a valid EPIC ID (minimum 10 characters)');
-      return;
-    }
+  const handleSendOtp = () => {
     if (voterData.mobile.length !== 10) {
       alert('Please enter a valid 10-digit mobile number');
       return;
     }
     
-    const detectedState = getStateFromEpicId(voterData.epicId);
+    // Simulate OTP sending
+    setOtpSent(true);
+    alert(`OTP sent to ${voterData.mobile}. Demo OTP: 123456`);
+  };
+
+  const handleVoterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (voterData.voterId.length < 10) {
+      alert('Please enter a valid Voter ID (minimum 10 characters)');
+      return;
+    }
+    
+    if (!otpSent) {
+      alert('Please send OTP first');
+      return;
+    }
+    
+    if (otp.length !== 6) {
+      alert('Please enter the 6-digit OTP');
+      return;
+    }
+    
+    // Demo OTP verification
+    if (otp !== '123456') {
+      alert('Invalid OTP. Demo OTP: 123456');
+      return;
+    }
+    
+    const detectedState = getStateFromVoterId(voterData.voterId);
     if (!detectedState) {
-      alert('Invalid EPIC ID format. Please check your Voter ID.');
+      alert('Invalid Voter ID format. Please check your Voter ID.');
       return;
     }
     
@@ -142,15 +170,15 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
               <TabsContent value="voter" className="space-y-4">
                 <form onSubmit={handleVoterSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="epicId">EPIC ID (Voter ID)</Label>
+                    <Label htmlFor="voterId">Voter ID</Label>
                     <Input
-                      id="epicId"
+                      id="voterId"
                       type="text"
-                      placeholder="Enter your EPIC ID (e.g., ABC1234567)"
-                      value={voterData.epicId}
+                      placeholder="Enter your Voter ID (e.g., 27ABC1234567)"
+                      value={voterData.voterId}
                       onChange={(e) => {
-                        setVoterData({...voterData, epicId: e.target.value.toUpperCase()});
-                        const state = getStateFromEpicId(e.target.value);
+                        setVoterData({...voterData, voterId: e.target.value.toUpperCase()});
+                        const state = getStateFromVoterId(e.target.value);
                         if (state) setVoterState(state);
                       }}
                       required
@@ -160,25 +188,67 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
                       <p className="text-sm text-green-600">Detected State: {voterState}</p>
                     )}
                   </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input
-                      id="mobile"
-                      type="tel"
-                      placeholder="Enter 10-digit mobile number"
-                      value={voterData.mobile}
-                      onChange={(e) => setVoterData({...voterData, mobile: e.target.value.replace(/\D/g, '')})}
-                      required
-                      maxLength={10}
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        id="mobile"
+                        type="tel"
+                        placeholder="Enter 10-digit mobile number"
+                        value={voterData.mobile}
+                        onChange={(e) => setVoterData({...voterData, mobile: e.target.value.replace(/\D/g, '')})}
+                        required
+                        maxLength={10}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={voterData.mobile.length !== 10 || otpSent}
+                        variant="outline"
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700">
+
+                  {otpSent && (
+                    <div className="space-y-2">
+                      <Label htmlFor="otp">Enter OTP</Label>
+                      <div className="flex justify-center">
+                        <InputOTP 
+                          maxLength={6} 
+                          value={otp} 
+                          onChange={(value) => setOtp(value)}
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </div>
+                      <p className="text-xs text-center text-gray-600">
+                        OTP sent to {voterData.mobile}
+                      </p>
+                    </div>
+                  )}
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-orange-600 hover:bg-orange-700"
+                    disabled={!otpSent || otp.length !== 6}
+                  >
                     <Shield className="mr-2 h-4 w-4" />
                     Voter Login
                   </Button>
                 </form>
                 <div className="text-center text-xs text-gray-600">
-                  <p>Demo: Use any EPIC ID starting with state code + 10-digit mobile</p>
+                  <p>Demo: Use any Voter ID starting with state code + Demo OTP: 123456</p>
                 </div>
               </TabsContent>
               
