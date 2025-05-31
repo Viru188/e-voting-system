@@ -1,38 +1,27 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LogOut, Users, BarChart3, Shield, Activity, Trophy, TrendingUp, Calendar, MapPin } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { LogOut, Users, BarChart3, Shield, Activity, Trophy, TrendingUp, MapPin } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface AdminDashboardProps {
   onLogout: () => void;
+  adminState: string;
 }
 
-const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
-  const [selectedState, setSelectedState] = useState('Maharashtra');
-
-  // Indian states data
-  const indianStates = [
-    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
-    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
-    'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
-    'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
-    'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
-    'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
-  ];
-
-  // State-wise voting data (mock data)
-  const stateWiseData = {
+const AdminDashboard = ({ onLogout, adminState }: AdminDashboardProps) => {
+  // State-specific data based on admin's state
+  const stateData = {
     'Maharashtra': {
       totalVoters: 45000,
       votedCount: 31500,
       participationRate: 70.0,
       candidates: [
-        { name: 'Alex Johnson', votes: 14175, percentage: 45.0, party: 'Democratic Party' },
-        { name: 'Sarah Williams', votes: 11025, percentage: 35.0, party: 'Republican Party' },
-        { name: 'Michael Chen', votes: 6300, percentage: 20.0, party: 'Independent' }
+        { name: 'Eknath Shinde', party: 'Shiv Sena', votes: 14175, percentage: 45.0 },
+        { name: 'Uddhav Thackeray', party: 'Shiv Sena (UBT)', votes: 11025, percentage: 35.0 },
+        { name: 'Devendra Fadnavis', party: 'BJP', votes: 6300, percentage: 20.0 }
       ]
     },
     'Uttar Pradesh': {
@@ -40,9 +29,9 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       votedCount: 57400,
       participationRate: 70.0,
       candidates: [
-        { name: 'Alex Johnson', votes: 24526, percentage: 42.7, party: 'Democratic Party' },
-        { name: 'Sarah Williams', votes: 20148, percentage: 35.1, party: 'Republican Party' },
-        { name: 'Michael Chen', votes: 12726, percentage: 22.2, party: 'Independent' }
+        { name: 'Yogi Adityanath', party: 'BJP', votes: 24526, percentage: 42.7 },
+        { name: 'Akhilesh Yadav', party: 'Samajwadi Party', votes: 20148, percentage: 35.1 },
+        { name: 'Mayawati', party: 'BSP', votes: 12726, percentage: 22.2 }
       ]
     },
     'Tamil Nadu': {
@@ -50,9 +39,9 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       votedCount: 26600,
       participationRate: 70.0,
       candidates: [
-        { name: 'Sarah Williams', votes: 11970, percentage: 45.0, party: 'Republican Party' },
-        { name: 'Alex Johnson', votes: 10640, percentage: 40.0, party: 'Democratic Party' },
-        { name: 'Michael Chen', votes: 3990, percentage: 15.0, party: 'Independent' }
+        { name: 'M. K. Stalin', party: 'DMK', votes: 11970, percentage: 45.0 },
+        { name: 'Edappadi K. Palaniswami', party: 'AIADMK', votes: 10640, percentage: 40.0 },
+        { name: 'Annamalai', party: 'BJP', votes: 3990, percentage: 15.0 }
       ]
     },
     'Gujarat': {
@@ -60,9 +49,9 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       votedCount: 19600,
       participationRate: 70.0,
       candidates: [
-        { name: 'Alex Johnson', votes: 9800, percentage: 50.0, party: 'Democratic Party' },
-        { name: 'Sarah Williams', votes: 6860, percentage: 35.0, party: 'Republican Party' },
-        { name: 'Michael Chen', votes: 2940, percentage: 15.0, party: 'Independent' }
+        { name: 'Bhupendra Patel', party: 'BJP', votes: 9800, percentage: 50.0 },
+        { name: 'Bharatsinh Solanki', party: 'Congress', votes: 6860, percentage: 35.0 },
+        { name: 'Isudan Gadhvi', party: 'AAP', votes: 2940, percentage: 15.0 }
       ]
     },
     'West Bengal': {
@@ -70,50 +59,30 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       votedCount: 28700,
       participationRate: 70.0,
       candidates: [
-        { name: 'Michael Chen', votes: 12615, percentage: 44.0, party: 'Independent' },
-        { name: 'Alex Johnson', votes: 10005, percentage: 34.9, party: 'Democratic Party' },
-        { name: 'Sarah Williams', votes: 6080, percentage: 21.1, party: 'Republican Party' }
+        { name: 'Mamata Banerjee', party: 'AITC', votes: 12615, percentage: 44.0 },
+        { name: 'Suvendu Adhikari', party: 'BJP', votes: 10005, percentage: 34.9 },
+        { name: 'Adhir Ranjan Chowdhury', party: 'Congress', votes: 6080, percentage: 21.1 }
       ]
     }
   };
 
-  // Get current state data or default
-  const currentStateData = stateWiseData[selectedState] || stateWiseData['Maharashtra'];
+  const currentStateData = stateData[adminState as keyof typeof stateData] || stateData['Maharashtra'];
   const winningCandidate = currentStateData.candidates[0];
-
-  // Overall national data (aggregated)
-  const nationalData = [
-    { name: 'Alex Johnson', votes: 1250, percentage: 45, party: 'Democratic Party' },
-    { name: 'Sarah Williams', votes: 980, percentage: 35, party: 'Republican Party' },
-    { name: 'Michael Chen', votes: 556, percentage: 20, party: 'Independent' }
-  ];
 
   const participationData = [
     { name: 'Voted', value: currentStateData.votedCount, color: '#3b82f6' },
     { name: 'Not Voted', value: currentStateData.totalVoters - currentStateData.votedCount, color: '#e5e7eb' }
   ];
 
-  // Hourly voting trend data
-  const hourlyVotingTrend = [
-    { hour: '8AM', votes: 120 },
-    { hour: '10AM', votes: 340 },
-    { hour: '12PM', votes: 580 },
-    { hour: '2PM', votes: 720 },
-    { hour: '4PM', votes: 980 },
-    { hour: '6PM', votes: 1250 },
-    { hour: '8PM', votes: 1450 }
+  // District-wise data for the state
+  const districtData = [
+    { district: 'District 1', votes: Math.floor(currentStateData.votedCount * 0.25) },
+    { district: 'District 2', votes: Math.floor(currentStateData.votedCount * 0.20) },
+    { district: 'District 3', votes: Math.floor(currentStateData.votedCount * 0.18) },
+    { district: 'District 4', votes: Math.floor(currentStateData.votedCount * 0.15) },
+    { district: 'Others', votes: Math.floor(currentStateData.votedCount * 0.22) }
   ];
 
-  // Demographic data
-  const demographicData = [
-    { age: '18-25', votes: 456, percentage: 16.4 },
-    { age: '26-35', votes: 892, percentage: 32.0 },
-    { age: '36-50', votes: 978, percentage: 35.1 },
-    { age: '51-65', votes: 334, percentage: 12.0 },
-    { age: '65+', votes: 126, percentage: 4.5 }
-  ];
-
-  // Election statistics
   const electionStats = [
     { title: 'Total Registered Voters', value: currentStateData.totalVoters.toLocaleString(), icon: Users, color: 'blue' },
     { title: 'Votes Cast', value: currentStateData.votedCount.toLocaleString(), icon: BarChart3, color: 'green' },
@@ -122,18 +91,22 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-red-600 rounded-lg">
+              <div className="p-2 bg-blue-600 rounded-lg">
                 <Shield className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-sm text-gray-600">Election Analytics & Results</p>
+                <h1 className="text-xl font-bold text-gray-900">{adminState} Admin Dashboard</h1>
+                <p className="text-sm text-gray-600">State Election Commission - {adminState}</p>
+              </div>
+              <div className="flex items-center">
+                <MapPin className="h-4 w-4 text-gray-500 mr-1" />
+                <span className="text-sm text-gray-600">{adminState}</span>
               </div>
             </div>
             <Button variant="outline" onClick={onLogout} className="hover:bg-red-50">
@@ -145,42 +118,14 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* State Selector */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              State-wise Analysis
-            </CardTitle>
-            <CardDescription>Select a state to view detailed voting statistics</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-gray-700">Select State:</label>
-              <Select value={selectedState} onValueChange={setSelectedState}>
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder="Choose a state" />
-                </SelectTrigger>
-                <SelectContent>
-                  {indianStates.map((state) => (
-                    <SelectItem key={state} value={state}>
-                      {state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* State Winning Party Alert */}
+        {/* State Winner Alert */}
         <Card className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Trophy className="h-12 w-12 text-yellow-500" />
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Leading in {selectedState}</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">Leading in {adminState}</h3>
                   <p className="text-lg text-gray-700">{winningCandidate.name} ({winningCandidate.party})</p>
                   <p className="text-sm text-gray-600">
                     {winningCandidate.votes.toLocaleString()} votes ({winningCandidate.percentage}%)
@@ -212,11 +157,11 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* State Vote Results */}
+          {/* State Results */}
           <Card>
             <CardHeader>
-              <CardTitle>{selectedState} Election Results</CardTitle>
-              <CardDescription>Vote breakdown for {selectedState}</CardDescription>
+              <CardTitle>{adminState} Election Results</CardTitle>
+              <CardDescription>Vote breakdown for {adminState}</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -248,45 +193,34 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
             </CardContent>
           </Card>
 
-          {/* National Comparison */}
+          {/* District-wise Breakdown */}
           <Card>
             <CardHeader>
-              <CardTitle>National vs {selectedState}</CardTitle>
-              <CardDescription>Comparison with national averages</CardDescription>
+              <CardTitle>District-wise Votes</CardTitle>
+              <CardDescription>Vote distribution across {adminState} districts</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={nationalData}>
+                <BarChart data={districtData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <XAxis dataKey="district" tick={{ fontSize: 12 }} />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="percentage" fill="#10b981" />
+                  <Bar dataKey="votes" fill="#10b981" />
                 </BarChart>
               </ResponsiveContainer>
-              
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
-                  <span className="text-sm font-medium">{selectedState} Participation</span>
-                  <span className="text-lg font-bold text-blue-600">{currentStateData.participationRate}%</span>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-green-50 rounded">
-                  <span className="text-sm font-medium">National Average</span>
-                  <span className="text-lg font-bold text-green-600">69.7%</span>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* State Participation Overview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{selectedState} Voter Participation</CardTitle>
-              <CardDescription>Detailed breakdown for {selectedState}</CardDescription>
-            </CardHeader>
-            <CardContent>
+        {/* Participation Overview */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>{adminState} Voter Participation</CardTitle>
+            <CardDescription>Detailed participation breakdown</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
@@ -305,63 +239,36 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 </PieChart>
               </ResponsiveContainer>
               
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
-                  <span className="text-sm font-medium">Participation Rate</span>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-blue-50 rounded">
+                  <span className="font-medium">Participation Rate</span>
                   <span className="text-lg font-bold text-blue-600">{currentStateData.participationRate}%</span>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <span className="text-sm font-medium">Remaining Voters</span>
+                <div className="flex justify-between items-center p-3 bg-green-50 rounded">
+                  <span className="font-medium">Total Votes Cast</span>
+                  <span className="text-lg font-bold text-green-600">
+                    {currentStateData.votedCount.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                  <span className="font-medium">Remaining Voters</span>
                   <span className="text-lg font-bold text-gray-600">
                     {(currentStateData.totalVoters - currentStateData.votedCount).toLocaleString()}
                   </span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Demographic Analysis */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Demographic Analysis</CardTitle>
-              <CardDescription>Voting patterns by age group</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {demographicData.map((demo, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">{demo.age} years</span>
-                      <span className="text-sm text-gray-600">{demo.votes} votes ({demo.percentage}%)</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full" 
-                        style={{ width: `${demo.percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-6 p-4 bg-purple-50 rounded-lg">
-                <div className="flex items-center space-x-2 text-purple-800">
-                  <TrendingUp className="h-5 w-5" />
-                  <span className="font-semibold">Highest Participation: 36-50 age group</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Security Status */}
-        <Card className="mt-8 bg-green-50 border-green-200">
+        <Card className="bg-green-50 border-green-200">
           <CardContent className="pt-6">
             <div className="flex items-center justify-center space-x-3 text-green-800">
               <Shield className="h-8 w-8" />
               <div className="text-center">
-                <h3 className="text-lg font-semibold">System Security Status: SECURE</h3>
-                <p className="text-sm">All voting systems operational. Real-time monitoring active. No security incidents detected.</p>
+                <h3 className="text-lg font-semibold">{adminState} Security Status: SECURE</h3>
+                <p className="text-sm">All voting systems in {adminState} are operational. Real-time monitoring active.</p>
               </div>
             </div>
           </CardContent>
