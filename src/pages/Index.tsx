@@ -1,12 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import LoginForm from '@/components/LoginForm';
+import VotingDashboard from '@/components/VotingDashboard';
+import AdminDashboard from '@/components/AdminDashboard';
 
 const Index = () => {
+  const [currentView, setCurrentView] = useState('login');
+  const [userRole, setUserRole] = useState('');
+
+  const handleLogin = (role: string) => {
+    setUserRole(role);
+    if (role === 'admin') {
+      setCurrentView('admin');
+    } else {
+      setCurrentView('voting');
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentView('login');
+    setUserRole('');
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {currentView === 'login' && <LoginForm onLogin={handleLogin} />}
+      {currentView === 'voting' && <VotingDashboard onLogout={handleLogout} />}
+      {currentView === 'admin' && <AdminDashboard onLogout={handleLogout} />}
     </div>
   );
 };
