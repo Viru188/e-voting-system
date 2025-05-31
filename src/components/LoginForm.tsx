@@ -4,23 +4,28 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Shield, Vote, CheckCircle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Shield, Vote, CheckCircle, BarChart3 } from 'lucide-react';
 
 interface LoginFormProps {
   onLogin: (role: string) => void;
 }
 
 const LoginForm = ({ onLogin }: LoginFormProps) => {
-  const [voterId, setVoterId] = useState('');
-  const [password, setPassword] = useState('');
+  const [voterData, setVoterData] = useState({ id: '', password: '' });
+  const [adminData, setAdminData] = useState({ username: '', password: '' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleVoterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple demo logic
-    if (voterId === 'admin' && password === 'admin') {
+    onLogin('voter');
+  };
+
+  const handleAdminSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (adminData.username === 'admin' && adminData.password === 'admin123') {
       onLogin('admin');
     } else {
-      onLogin('voter');
+      alert('Invalid admin credentials');
     }
   };
 
@@ -38,54 +43,95 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
           <p className="text-gray-600 mt-2">Secure • Transparent • Democratic</p>
         </div>
 
-        {/* Login Card */}
+        {/* Login Tabs */}
         <Card className="shadow-xl border-0 bg-white/80 backdrop-blur">
           <CardHeader>
-            <CardTitle className="text-xl text-center">Voter Login</CardTitle>
+            <CardTitle className="text-xl text-center">Login Portal</CardTitle>
             <CardDescription className="text-center">
-              Enter your credentials to access the voting system
+              Choose your access level
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="voterId">Voter ID</Label>
-                <Input
-                  id="voterId"
-                  type="text"
-                  placeholder="Enter your voter ID"
-                  value={voterId}
-                  onChange={(e) => setVoterId(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                <Shield className="mr-2 h-4 w-4" />
-                Secure Login
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Demo Info */}
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="pt-6">
-            <div className="text-center text-sm text-blue-800">
-              <h3 className="font-semibold mb-2">Demo Credentials</h3>
-              <p>Voter: Any ID + Any Password</p>
-              <p>Admin: admin + admin</p>
-            </div>
+            <Tabs defaultValue="voter" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="voter" className="flex items-center gap-2">
+                  <Vote className="h-4 w-4" />
+                  Voter
+                </TabsTrigger>
+                <TabsTrigger value="admin" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Admin
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="voter" className="space-y-4">
+                <form onSubmit={handleVoterSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="voterId">Voter ID</Label>
+                    <Input
+                      id="voterId"
+                      type="text"
+                      placeholder="Enter your voter ID"
+                      value={voterData.id}
+                      onChange={(e) => setVoterData({...voterData, id: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="voterPassword">Password</Label>
+                    <Input
+                      id="voterPassword"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={voterData.password}
+                      onChange={(e) => setVoterData({...voterData, password: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                    <Shield className="mr-2 h-4 w-4" />
+                    Voter Login
+                  </Button>
+                </form>
+                <div className="text-center text-xs text-gray-600">
+                  <p>Demo: Any ID + Any Password</p>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="admin" className="space-y-4">
+                <form onSubmit={handleAdminSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="adminUsername">Admin Username</Label>
+                    <Input
+                      id="adminUsername"
+                      type="text"
+                      placeholder="Enter admin username"
+                      value={adminData.username}
+                      onChange={(e) => setAdminData({...adminData, username: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="adminPassword">Admin Password</Label>
+                    <Input
+                      id="adminPassword"
+                      type="password"
+                      placeholder="Enter admin password"
+                      value={adminData.password}
+                      onChange={(e) => setAdminData({...adminData, password: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full bg-red-600 hover:bg-red-700">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    Admin Access
+                  </Button>
+                </form>
+                <div className="text-center text-xs text-gray-600">
+                  <p>Demo: admin + admin123</p>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
